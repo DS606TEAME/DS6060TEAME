@@ -1,2 +1,4 @@
 # DS6060TEAME
  FIND MOVIE SIMILARITY FROM PLOT SUMMARIES
+ The dataset is from kaggle.com
+ 
