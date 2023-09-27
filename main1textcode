@@ -1,0 +1,50 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from wordcloud import WordCloud
+import ast
+
+# Load the dataset
+file_path = 'tmdb_5000_movies.csv'
+tmdb_movies_df = pd.read_csv(file_path)
+
+# Extracting specific details from the dataset
+num_instances = tmdb_movies_df.shape[0]
+num_attributes = tmdb_movies_df.shape[1]
+attributes_list = tmdb_movies_df.columns.tolist()
+
+# Extracting genres and creating a word cloud
+def extract_name_list(column):
+    try:
+        if isinstance(column, str):
+            items_list = ast.literal_eval(column)
+            if isinstance(items_list, list):
+                names_list = [item['name'] for item in items_list if isinstance(item, dict) and 'name' in item]
+                return names_list
+    except (ValueError, SyntaxError):
+        pass
+    return []
+
+genres_list = tmdb_movies_df['genres'].apply(extract_name_list).explode().dropna().tolist()
+genres_wordcloud = WordCloud(width=800, height=400, background_color ='white', min_font_size = 10).generate(' '.join(genres_list))
+
+# Extracting keywords and creating a word cloud
+keywords_list = tmdb_movies_df['keywords'].apply(extract_name_list).explode().dropna().tolist()
+keywords_wordcloud = WordCloud(width=800, height=400, background_color ='white', min_font_size = 10).generate(' '.join(keywords_list))
+
+# Plotting the word clouds
+fig, ax = plt.subplots(1, 2, figsize=(16, 8))
+ax[0].imshow(genres_wordcloud)
+ax[0].axis('off')
+ax[0].set_title('Genres Word Cloud')
+
+ax[1].imshow(keywords_wordcloud)
+ax[1].axis('off')
+ax[1].set_title('Keywords Word Cloud')
+
+plt.show()
+
+# Getting the distribution of the vote_average
+vote_average_dist = tmdb_movies_df['vote_average'].describe()
+
+vote_average_dist
